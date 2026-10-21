@@ -1,0 +1,157 @@
+package analizadores;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import registro.Token;
+import registro.ErrorLexico;
+import registro.types.TokenType;
+
+%%
+
+%class Lexer
+%public
+%type Token
+%line
+%unicode
+%column
+
+%state COMENTARIO_BLOQUE
+
+%{
+    private List<ErrorLexico> errores = new ArrayList<>();
+
+    private int comIniFila, comIniCol;
+
+
+    /*
+    LISTA DE ERRORES
+    */
+
+    public List<ErrorLexico> getErrores() { 
+	return errores; 
+    }
+
+
+    /*
+    REGISTRAR TOKEN
+    */
+
+    private Token token(TokenType tipo) {
+        return new Token(tipo, yytext(), yyline + 1, yycolumn + 1);
+    }
+
+
+    /*
+    REGISTRAR FIN DEL TEXTO
+    */
+
+    private Token eof() {
+        return new Token(TokenType.EOF, "", yyline + 1, yycolumn + 1);
+    }
+
+
+    /*
+    REGISTRAR ERROR
+    */
+
+    private void error(String descripcion) {
+        errores.add(new ErrorLexico(yytext(), descripcion, yyline + 1, yycolumn + 1));
+    }
+
+
+    /*
+    METODO PARA ANALIZAR
+    */
+
+    public List<Token> tokenizar() throws IOException {
+        List<Token> tokens = new ArrayList<>();
+        Token t;
+        do {
+            t = yylex();
+            tokens.add(t);
+        } while (t.getTipo() != TokenType.EOF);
+        return tokens;
+    }
+
+
+%}
+
+
+LETRA = [a-zA-Z_]
+
+DIGITO = [0-9]
+
+ID = {LETRA}({LETRA}|{DIGITO})*
+
+NUMERO = {DIGITO}+ ("." {DIGITO}+)?
+
+CADENA = \"[^\"\r\n]*\"
+
+CADENASINCERRAR = \"[^\"\r\n]*
+
+ESPACIO = [ \t\r\n\f]+
+
+COMENTARIOLINEA = "//" [^\r\n]*
+
+
+%%
+
+
+<YYINITIAL> {
+
+    {ESPACIO}                         { }
+    {COMENTARIOLINEA}                 { }
+
+    "/*"                              { 
+					comIniFila = yyline + 1; comIniCol = yycolumn + 1; 
+					yybegin(COMENTARIO_BLOQUE); 
+				      }
+
+    "@modelo" | "@rol" | "@formato"   { return token(TokenType.DIRECTIVA); }
+    "@" {ID}                          { error("Directiva desconocida"); }
+
+    "AGENTE"                          { return token(TokenType.AGENTE); }
+    "contexto"                        { return token(TokenType.CONTEXTO); }
+    "variable"                        { return token(TokenType.VARIABLE); }
+    "EJECUTAR"                        { return token(TokenType.EJECUTAR); }
+    "EXPORTAR"                        { return token(TokenType.EXPORTAR); }
+
+    "PREGUNTAR" | "GENERAR" | "RESUMIR" | "ANALIZAR"
+    | "TRADUCIR" | "CLASIFICAR" | "EXTRAER"
+                                      { return token(TokenType.COMANDO_IA); }
+
+    "CARGAR"                          { return token(TokenType.CARGAR); }
+
+    "SOBRE" | "DESDE" | "EN" | "COMO"  { return token(TokenType.CONECTOR); }
+
+    "->"                              { return token(TokenType.FLECHA); }
+    "="                               { return token(TokenType.IGUAL); }
+    "+"                               { return token(TokenType.MAS); }
+    "{"                               { return token(TokenType.LLAVE_A); }
+    "}"                               { return token(TokenType.LLAVE_C); }
+    "("                               { return token(TokenType.PAR_A); }
+    ")"                               { return token(TokenType.PAR_C); }
+    ","                               { return token(TokenType.COMA); }
+
+    {NUMERO}                            { return token(TokenType.NUMERO); }
+    {CADENA}                            { return token(TokenType.CADENA); }
+    {CADENASINCERRAR}                   { error("Cadena sin cerrar"); }
+    {ID}                                { return token(TokenType.ID); }
+
+    [^]                               { error("Caracter no reconocido"); }
+
+    <<EOF>>                           { return eof(); }
+}
+
+
+<COMENTARIO_BLOQUE> {
+    "*/"                              { yybegin(YYINITIAL); }
+
+    [^]                               { }
+
+    <<EOF>>                           { errores.add(new ErrorLexico("/*", "Comentario de bloque sin cerrar", comIniFila, comIniCol));
+                                        yybegin(YYINITIAL);
+                                        return eof(); 
+				      }
+}
