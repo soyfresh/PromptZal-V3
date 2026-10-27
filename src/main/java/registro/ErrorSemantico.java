@@ -32,6 +32,9 @@ public class ErrorSemantico {
         return columna;
     }
     
-    
+    @Override
+    public String toString() {
+        return "Error semántico (" + fila + ":" + columna + "): " + descripcion;
+    }
     
 }

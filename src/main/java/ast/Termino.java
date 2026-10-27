@@ -10,7 +10,7 @@ import ast.enums.TipoTermino;
  *
  * @author dar333n
  */
-public class Termino extends Nodo{
+ public class Termino extends Nodo{
     private TipoTermino tipo;
     private String valor;
     private String unidad;

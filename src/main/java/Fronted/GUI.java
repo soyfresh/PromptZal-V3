@@ -1,0 +1,650 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
+ */
+package Fronted;
+
+import compilador.Compilador;
+import compilador.DatosCompilacion;
+import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import semantico.Simbolo;
+
+/**
+ *
+ * @author dar333n
+ */
+public class GUI extends javax.swing.JFrame {
+
+    /**
+     * Creates new form GUI
+     */
+    
+    private Compilador compilador = new Compilador();
+    private DatosCompilacion ultimoResultado = null;
+    private File archivoActual = null;
+    private List<Simbolo> listaSimbolos = new ArrayList<>();
+ 
+    private static final Color ROJO_ERROR = new Color(105, 40, 40);
+    private static final Color verdeExito = new Color(40, 167, 69);
+
+    
+    
+    public GUI() {
+        initComponents();
+        jTextArea3.setText("Presione Compilr para analizar el programa");
+        
+    }
+
+    private void mostrarErrores(String filtro) {
+        
+        if (ultimoResultado == null) {
+            jTextArea3.setText("Todavia no se ha compilado ningun programa");
+            return;
+        }
+        
+        java.util.List<String> listaErrores = new java.util.ArrayList<>();
+        for (var e : ultimoResultado.getErroresLexicos()) {
+            listaErrores.add(e.toString());
+        }
+        for (var e : ultimoResultado.getErroresSintacticos()) {
+            listaErrores.add(e.toString());
+        }
+        for (var e : ultimoResultado.getErroresSemanticos()) {
+            listaErrores.add(e.toString());
+        }
+        
+        if (listaErrores.isEmpty()) {
+            jTextArea3.setForeground(verdeExito);
+            jTextArea3.setText("====================================\nBUILD SUCCESS\n====================================");
+            return;
+        }
+        
+        
+        // BUSCADOR DE ERRORES
+        String bloques = "";
+        int coincidencias = 0;
+        
+        String filtroMinus = null;
+        if(filtro == null) {
+            filtroMinus="";
+            
+        }else{
+            filtroMinus=filtro.toLowerCase();
+        }
+
+        for (String errorStr : listaErrores) {
+            if (filtroMinus.isEmpty() || errorStr.toLowerCase().contains(filtroMinus)) {
+                bloques = bloques + errorStr + "\n\n";
+                coincidencias++;
+            }
+        }
+
+        String texto;
+        if (filtroMinus.isEmpty()) {
+            texto = "Se encontraron " + listaErrores.size() + " error(es): "
+                    + ultimoResultado.getErroresLexicos().size() + " lexico(s), "
+                    + ultimoResultado.getErroresSintacticos().size() + " sintactico(s) y "
+                    + ultimoResultado.getErroresSemanticos().size() + " semantico(s)\n\n" + bloques;
+        } else if (coincidencias == 0) {
+            texto = "No se encontraron errores que contengan \"" + filtro + "\".";
+        } else {
+            texto = "Busqueda \"" + filtro + "\": " + coincidencias + " de " + listaErrores.size()
+                    + " error(es)\n\n" + bloques;
+        }
+        
+        jTextArea3.setForeground(ROJO_ERROR);
+        jTextArea3.setText(texto);
+        jTextArea3.setCaretPosition(0);
+    
+    }
+    
+    private void cargarTablaSimbolos() {
+    DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+    modelo.setRowCount(0); // Limpiar filas anteriores
+    
+    if (ultimoResultado != null && ultimoResultado.getTabla() != null) {
+        listaSimbolos = ultimoResultado.getTabla().getSimbolos();
+        for (Simbolo s : listaSimbolos) {
+            modelo.addRow(new Object[]{
+                s.getNombre(), 
+                s.getTipo(), 
+                s.getAmbito(), 
+                s.getLinea()
+            });
+        }
+    }
+}
+    
+    
+    private void limpiarResultados(){
+        ultimoResultado = null;
+        listaSimbolos = new ArrayList<>();
+        jTextArea2.setText("");
+        ((DefaultTableModel) jTable1.getModel()).setRowCount(0);
+        jTextArea3.setText("Presione Compilar para analizar el programa");
+        ((DefaultTableModel) jTable1.getModel()).setRowCount(0);
+        jTabbedPane1.setTitleAt(0, "Errores");
+        textBuscadorError.setText("");
+        jTextField1.setText("");
+        jTextArea1.setText("");
+    }
+    
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jToolBar1 = new javax.swing.JToolBar();
+        jButton1 = new javax.swing.JButton();
+        jSeparator1 = new javax.swing.JToolBar.Separator();
+        jButton3 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jSplitPane2 = new javax.swing.JSplitPane();
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jPanel2 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
+        jPanel3 = new javax.swing.JPanel();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jPanel4 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
+        textBuscadorError = new javax.swing.JTextField();
+        ejecutarBusquedaError = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        jPanel6 = new javax.swing.JPanel();
+        jPanel7 = new javax.swing.JPanel();
+        jTextField1 = new javax.swing.JTextField();
+        jButton8 = new javax.swing.JButton();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem3 = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JPopupMenu.Separator();
+        jMenuItem4 = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jToolBar1.setRollover(true);
+
+        jButton1.setForeground(new java.awt.Color(51, 153, 0));
+        jButton1.setText("▶ Compilar");
+        jButton1.setFocusable(false);
+        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton1);
+        jToolBar1.add(jSeparator1);
+
+        jButton3.setText("Reporte errores");
+        jButton3.setFocusable(false);
+        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton3);
+
+        jButton2.setText("Reporte símbolos");
+        jButton2.setFocusable(false);
+        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(jButton2);
+
+        jButton4.setText("Reporte AST");
+        jButton4.setFocusable(false);
+        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jToolBar1.add(jButton4);
+
+        getContentPane().add(jToolBar1, java.awt.BorderLayout.PAGE_START);
+
+        jSplitPane2.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        jLabel1.setText("Editor");
+        jPanel1.add(jLabel1, java.awt.BorderLayout.PAGE_START);
+
+        jTextArea1.setBackground(new java.awt.Color(0, 0, 0));
+        jTextArea1.setColumns(20);
+        jTextArea1.setForeground(new java.awt.Color(51, 204, 0));
+        jTextArea1.setRows(5);
+        jScrollPane1.setViewportView(jTextArea1);
+
+        jPanel1.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setLeftComponent(jPanel1);
+
+        jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jLabel2.setText("Promptzal generado");
+        jPanel2.add(jLabel2, java.awt.BorderLayout.PAGE_START);
+
+        jTextArea2.setEditable(false);
+        jTextArea2.setColumns(20);
+        jTextArea2.setLineWrap(true);
+        jTextArea2.setRows(5);
+        jTextArea2.setToolTipText("");
+        jTextArea2.setWrapStyleWord(true);
+        jScrollPane2.setViewportView(jTextArea2);
+
+        jPanel2.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+
+        jPanel3.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT));
+
+        jButton5.setText("Guardar promptzal (.md / .txt)");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButton5);
+
+        jButton6.setText("Copiar");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButton6);
+
+        jPanel2.add(jPanel3, java.awt.BorderLayout.PAGE_END);
+
+        jSplitPane1.setRightComponent(jPanel2);
+
+        jSplitPane2.setLeftComponent(jSplitPane1);
+
+        jPanel4.setLayout(new java.awt.BorderLayout());
+
+        jPanel5.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+
+        textBuscadorError.setColumns(15);
+        jPanel5.add(textBuscadorError);
+
+        ejecutarBusquedaError.setText("buscar");
+        ejecutarBusquedaError.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ejecutarBusquedaErrorActionPerformed(evt);
+            }
+        });
+        jPanel5.add(ejecutarBusquedaError);
+
+        jPanel4.add(jPanel5, java.awt.BorderLayout.PAGE_START);
+
+        jTextArea3.setEditable(false);
+        jTextArea3.setColumns(20);
+        jTextArea3.setLineWrap(true);
+        jTextArea3.setRows(5);
+        jTextArea3.setWrapStyleWord(true);
+        jScrollPane4.setViewportView(jTextArea3);
+
+        jPanel4.add(jScrollPane4, java.awt.BorderLayout.CENTER);
+
+        jScrollPane3.setViewportView(jPanel4);
+
+        jTabbedPane1.addTab("Errores", jScrollPane3);
+
+        jPanel6.setLayout(new java.awt.BorderLayout());
+
+        jTextField1.setColumns(15);
+        jPanel7.add(jTextField1);
+
+        jButton8.setText("buscar");
+        jPanel7.add(jButton8);
+
+        jPanel6.add(jPanel7, java.awt.BorderLayout.PAGE_START);
+
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Nombre", "Tipo", "Donde Existe", "Linea"
+            }
+        ));
+        jScrollPane6.setViewportView(jTable1);
+
+        jPanel6.add(jScrollPane6, java.awt.BorderLayout.CENTER);
+
+        jScrollPane5.setViewportView(jPanel6);
+
+        jTabbedPane1.addTab("Tabla de simbolos", jScrollPane5);
+
+        jSplitPane2.setRightComponent(jTabbedPane1);
+        jTabbedPane1.getAccessibleContext().setAccessibleName("Errores");
+
+        getContentPane().add(jSplitPane2, java.awt.BorderLayout.CENTER);
+
+        jMenu1.setText("Archivo");
+
+        jMenuItem2.setText("Nuevo");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
+
+        jMenuItem1.setText("Abrir");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuItem3.setText("Guardar");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem3);
+        jMenu1.add(jSeparator2);
+
+        jMenuItem4.setText("Salir");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem4);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        
+        String codigo = jTextArea1.getText().trim();
+        if (codigo.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "El editor esta vacio. Escribe codigo PromptZal antes de compilar", 
+                "Aviso", 
+                JOptionPane.WARNING_MESSAGE);
+            return; 
+        }
+
+        jTextArea1.getHighlighter().removeAllHighlights();
+
+        ultimoResultado = compilador.compilar(jTextArea1.getText());
+
+        textBuscadorError.setText("");
+        jTextField1.setText("");
+
+        // mostrar errores
+        jTabbedPane1.setTitleAt(0, "Errores (" + ultimoResultado.totalErrores() + ")");
+        jTabbedPane1.setSelectedIndex(0);
+
+        mostrarErrores(null);    
+        
+        if (ultimoResultado.getPromptzal() != null) {
+            jTextArea2.setText(ultimoResultado.getPromptzal());
+        } else {
+            jTextArea2.setText("No se genero el promptzal (verifique errores de compilacion)");
+        }
+        jTextArea2.setCaretPosition(0);
+        cargarTablaSimbolos();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void ejecutarBusquedaErrorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ejecutarBusquedaErrorActionPerformed
+        // TODO add your handling code here:
+        String filtro = textBuscadorError.getText();
+        mostrarErrores(filtro);
+    }//GEN-LAST:event_ejecutarBusquedaErrorActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        limpiarResultados();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+        if (ultimoResultado== null || ultimoResultado.getPromptzal() == null){
+            JOptionPane.showMessageDialog(this, "Todavia no hay un promptzal generado",
+                    "Promptzal", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Toolkit.getDefaultToolkit().getSystemClipboard()
+                .setContents(new StringSelection(ultimoResultado.getPromptzal()), null);
+        JOptionPane.showMessageDialog(this, "Promptzal copiado al portapapeles",
+                "Promptzal", JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // TODO add your handling code here:
+        // 1. Validar que exista un promptzal generado
+        if (ultimoResultado == null || ultimoResultado.getPromptzal() == null || ultimoResultado.getPromptzal().isEmpty()) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Todavia no hay un PromptZal generado para guardar", 
+                "Aviso", 
+                javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Abrir el selector de archivos para guardar
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setDialogTitle("Guardar PromptZal");
+
+        // Agregar filtros para .md y .txt
+        fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos Markdown (*.md)", "md"));
+        fileChooser.addChoosableFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Archivos de texto (*.txt)", "txt"));
+
+        int seleccion = fileChooser.showSaveDialog(this);
+        if (seleccion == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File archivo = fileChooser.getSelectedFile();
+
+            // Obtener la extensión seleccionada o por defecto poner .md
+            String ruta = archivo.getAbsolutePath();
+            if (!ruta.endsWith(".md") && !ruta.endsWith(".txt")) {
+                archivo = new java.io.File(ruta + ".md");
+            }
+
+            try {
+                // Escribir el contenido del PromptZal en el archivo
+                java.nio.file.Files.writeString(archivo.toPath(), ultimoResultado.getPromptzal(), java.nio.charset.StandardCharsets.UTF_8);
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "PromptZal guardado exitosamente en:\n" + archivo.getAbsolutePath(), 
+                    "Exito", 
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } catch (java.io.IOException e) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "No se pudo guardar el archivo: " + e.getMessage(), 
+                    "Error", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        // TODO add your handling code here:
+        javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+        fileChooser.setDialogTitle("Abrir archivo PromptZal");
+        
+        limpiarResultados();
+
+        // Filtro para mostrar solo archivos .pz
+        javax.swing.filechooser.FileNameExtensionFilter filtro = 
+            new javax.swing.filechooser.FileNameExtensionFilter("Archivos PromptZal (*.pz)", "pz");
+        fileChooser.setFileFilter(filtro);
+
+        int seleccion = fileChooser.showOpenDialog(this);
+        if (seleccion == javax.swing.JFileChooser.APPROVE_OPTION) {
+            java.io.File archivo = fileChooser.getSelectedFile();
+            try {
+                // Leer todo el contenido del archivo y pegarlo en el JTextArea
+                String contenido = new String(java.nio.file.Files.readAllBytes(archivo.toPath()));
+                jTextArea1.setText(contenido);
+                jTextArea1.setCaretPosition(0);
+                archivoActual = archivo;
+
+            } catch (java.io.IOException e) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Error al abrir el archivo: " + e.getMessage(), 
+                    "Error", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+        File archivo = archivoActual;
+ 
+        // si el programa todavía no tiene archivo, se pregunta dónde guardarlo
+        if (archivo == null) {
+            JFileChooser selector = new JFileChooser();
+            selector.setFileFilter(new FileNameExtensionFilter("Programas PromptZal (*.pz)", "pz"));
+            if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            archivo = selector.getSelectedFile();
+            if (!archivo.getName().endsWith(".pz")) {
+                archivo = new File(archivo.getParentFile(), archivo.getName() + ".pz");
+            }
+        }
+ 
+        try {
+            Files.writeString(archivo.toPath(), jTextArea1.getText(), StandardCharsets.UTF_8);
+            archivoActual = archivo;
+            JOptionPane.showMessageDialog(this, "Archivo guardado:\n" + archivo.getAbsolutePath(),
+                    "Guardar", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo guardar el archivo:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        // TODO add your handling code here:
+        System.exit(0);
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(GUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new GUI().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton ejecutarBusquedaError;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
+    private javax.swing.JMenuItem jMenuItem3;
+    private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
+    private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JPopupMenu.Separator jSeparator2;
+    private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
+    private javax.swing.JTextField jTextField1;
+    private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JTextField textBuscadorError;
+    // End of variables declaration//GEN-END:variables
+
+}
