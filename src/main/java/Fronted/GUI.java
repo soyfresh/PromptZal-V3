@@ -4,6 +4,9 @@
  */
 package Fronted;
 
+import Reportes.ReporteAST;
+import Reportes.ReporteErrores;
+import Reportes.ReporteTabla;
 import compilador.Compilador;
 import compilador.DatosCompilacion;
 import java.awt.Color;
@@ -214,6 +217,11 @@ public class GUI extends javax.swing.JFrame {
         jButton3.setFocusable(false);
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton3);
 
         jButton2.setText("Reporte símbolos");
@@ -231,6 +239,11 @@ public class GUI extends javax.swing.JFrame {
         jButton4.setFocusable(false);
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton4);
 
         getContentPane().add(jToolBar1, java.awt.BorderLayout.PAGE_START);
@@ -399,6 +412,27 @@ public class GUI extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
+        if (ultimoResultado == null) {
+            JOptionPane.showMessageDialog(this, "Primero compile el programa ",
+                    "Reporte de la tabla de símbolos", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        File archivo;
+        try {
+            archivo = ReporteTabla.crearArchivo(ultimoResultado);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo generar el reporte:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            java.awt.Desktop.getDesktop().browse(archivo.toURI());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Reporte generado en:\n" + archivo.getAbsolutePath(),
+                    "Reporte de la tabla de símbolos", JOptionPane.INFORMATION_MESSAGE);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -567,6 +601,56 @@ public class GUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         System.exit(0);
     }//GEN-LAST:event_jMenuItem4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        if (ultimoResultado == null) {
+            JOptionPane.showMessageDialog(this, "Primero compile el programa (botón Compilar).",
+                    "Reporte de errores", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        File archivo;
+        try {
+            archivo = ReporteErrores.crearArchivo(ultimoResultado);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo generar el reporte:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            java.awt.Desktop.getDesktop().browse(archivo.toURI());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Reporte generado en:\n" + archivo.getAbsolutePath(),
+                    "Reporte de errores", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+        if (ultimoResultado == null) {
+            JOptionPane.showMessageDialog(this, "Primero compile el programa (botón Compilar).",
+                    "Reporte del AST", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        File archivo;
+        try {
+            archivo = ReporteAST.crearArchivo(ultimoResultado);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo generar el reporte:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            java.awt.Desktop.getDesktop().browse(archivo.toURI());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Reporte generado en:\n" + archivo.getAbsolutePath(),
+                    "Reporte del AST", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
